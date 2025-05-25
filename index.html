@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Square Clicker</title>
+    <title>Falling Objects</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="game-container">
-        <h1>Square Clicker</h1>
+        <h1>Falling Objects</h1>
         <div class="info">
             <span>Score: <span id="score">0</span></span>
-            <span>Time: <span id="time">30</span>s</span>
+            <span>Time: <span id="time">60</span>s</span>
+            <span>Lives: <span id="lives">3</span></span>
         </div>
         <button id="startBtn">Start Game</button>
         <div id="gameArea" class="game-area">
-            <div id="target" class="target hidden"></div>
+            <div id="player" class="player hidden"></div>
         </div>
     </div>
     <script src="script.js"></script>
