@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let timeLeft = 60;
     let lives = 3;
-    let gameInterval;
+    let updateInterval;
+    let timerInterval;
     let spawnInterval;
     const objects = [];
     const playerSpeed = 7;
@@ -99,7 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function endGame() {
-        clearInterval(gameInterval);
+        clearInterval(updateInterval);
+        clearInterval(timerInterval);
         clearInterval(spawnInterval);
         objects.forEach((o) => o.remove());
         objects.length = 0;
@@ -121,14 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         spawnObject();
         spawnInterval = setInterval(spawnObject, 1000);
-        gameInterval = setInterval(() => {
+        updateInterval = setInterval(updateObjects, 20);
+        timerInterval = setInterval(() => {
             timeLeft--;
             timeEl.textContent = timeLeft;
-            updateObjects();
             if (timeLeft <= 0) {
                 endGame();
             }
-        }, 20);
+        }, 1000);
     }
 
     startBtn.addEventListener('click', startGame);
