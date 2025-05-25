@@ -1,4 +1,3 @@
-
 function randomPosition(max) {
     return Math.floor(Math.random() * max);
 }
@@ -8,131 +7,122 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const scoreEl = document.getElementById('score');
 
-document.addEventListener('DOMContentLoaded', () => {
-    const scoreEl = document.getElementById('score');
-    const timeEl = document.getElementById('time');
-    const livesEl = document.getElementById('lives');
-    const startBtn = document.getElementById('startBtn');
-    const player = document.getElementById('player');
-    const gameArea = document.getElementById('gameArea');
+        const tileCount = 20;
+        const tileSize = canvas.width / tileCount;
 
-    let score = 0;
-    let timeLeft = 60;
-    let lives = 3;
-    let updateInterval;
-    let timerInterval;
-    let spawnInterval;
-    const objects = [];
-    const playerSpeed = 7;
+        let snake;
+        let apple;
+        let velocity;
+        let score;
+        let gameInterval;
 
-
-    function randomPosition(max) {
-        return Math.floor(Math.random() * max);
-    }
-
-
-    function isColliding(a, b) {
-        const aRect = a.getBoundingClientRect();
-        const bRect = b.getBoundingClientRect();
-        return !(
-            aRect.right < bRect.left ||
-            aRect.left > bRect.right ||
-            aRect.bottom < bRect.top ||
-            aRect.top > bRect.bottom
-        );
-    }
-
-    function movePlayer(dx) {
-        const maxX = gameArea.clientWidth - player.offsetWidth;
-        const newLeft = Math.min(maxX, Math.max(0, player.offsetLeft + dx));
-        player.style.left = newLeft + 'px';
-    }
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') {
-            movePlayer(-playerSpeed);
+        function resetGame() {
+            snake = [{ x: Math.floor(tileCount / 2), y: Math.floor(tileCount / 2) }];
+            apple = { x: randomPosition(tileCount), y: randomPosition(tileCount) };
+            velocity = { x: 0, y: 0 };
+            score = 0;
+            scoreEl.textContent = score;
+            draw();
         }
-        if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') {
-            movePlayer(playerSpeed);
+
+        function drawCell(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
         }
-    });
 
-    function spawnObject() {
-        const obj = document.createElement('div');
-        obj.classList.add('object');
-        if (Math.random() < 0.8) {
-            obj.classList.add('good');
-        } else {
-            obj.classList.add('bad');
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCell(apple.x, apple.y, 'red');
+            snake.forEach((seg, idx) => {
+                drawCell(seg.x, seg.y, idx === 0 ? 'green' : 'lime');
+            });
         }
-        const maxX = gameArea.clientWidth - 30;
-        obj.style.left = randomPosition(maxX) + 'px';
-        obj.style.top = '-30px';
-        gameArea.appendChild(obj);
-        objects.push(obj);
-    }
 
-    function updateObjects() {
-        for (let i = objects.length - 1; i >= 0; i--) {
-            const obj = objects[i];
-            obj.style.top = obj.offsetTop + 2 + 'px';
-            if (obj.offsetTop > gameArea.clientHeight) {
-                obj.remove();
-                objects.splice(i, 1);
-                continue;
-            }
-            if (isColliding(obj, player)) {
-                if (obj.classList.contains('good')) {
-                    score++;
-                    scoreEl.textContent = score;
-                } else {
-                    lives--;
-                    livesEl.textContent = lives;
-                    if (lives <= 0) {
-                        endGame();
-                    }
-                }
-                obj.remove();
-                objects.splice(i, 1);
-            }
-        }
-    }
+        function update() {
+            const head = {
+                x: snake[0].x + velocity.x,
+                y: snake[0].y + velocity.y,
+            };
 
-    function endGame() {
-        clearInterval(updateInterval);
-        clearInterval(timerInterval);
-        clearInterval(spawnInterval);
-        objects.forEach((o) => o.remove());
-        objects.length = 0;
-        player.classList.add('hidden');
-        startBtn.disabled = false;
-        startBtn.textContent = 'Restart Game';
-    }
-
-    function startGame() {
-        score = 0;
-        timeLeft = 60;
-        lives = 3;
-        scoreEl.textContent = score;
-        timeEl.textContent = timeLeft;
-        livesEl.textContent = lives;
-        startBtn.disabled = true;
-        player.classList.remove('hidden');
-        player.style.left = (gameArea.clientWidth - player.offsetWidth) / 2 + 'px';
-
-        spawnObject();
-        spawnInterval = setInterval(spawnObject, 1000);
-        updateInterval = setInterval(updateObjects, 20);
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            timeEl.textContent = timeLeft;
-            if (timeLeft <= 0) {
+            if (
+                head.x < 0 ||
+                head.x >= tileCount ||
+                head.y < 0 ||
+                head.y >= tileCount
+            ) {
                 endGame();
+                return;
             }
-        }, 1000);
-    }
 
-    startBtn.addEventListener('click', startGame);
-});
+            for (const seg of snake) {
+                if (head.x === seg.x && head.y === seg.y) {
+                    endGame();
+                    return;
+                }
+            }
+
+            snake.unshift(head);
+
+            if (head.x === apple.x && head.y === apple.y) {
+                score++;
+                scoreEl.textContent = score;
+                apple = { x: randomPosition(tileCount), y: randomPosition(tileCount) };
+            } else {
+                snake.pop();
+            }
+
+            draw();
+        }
+
+        function endGame() {
+            clearInterval(gameInterval);
+            startBtn.disabled = false;
+            startBtn.textContent = 'Restart';
+        }
+
+        function startGame() {
+            resetGame();
+            startBtn.disabled = true;
+            startBtn.textContent = 'Playing...';
+            velocity = { x: 1, y: 0 };
+            gameInterval = setInterval(update, 100);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    if (velocity.y === 1) break;
+                    velocity = { x: 0, y: -1 };
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    if (velocity.y === -1) break;
+                    velocity = { x: 0, y: 1 };
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    if (velocity.x === 1) break;
+                    velocity = { x: -1, y: 0 };
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    if (velocity.x === -1) break;
+                    velocity = { x: 1, y: 0 };
+                    break;
+            }
+        });
+
+        startBtn.addEventListener('click', startGame);
+    });
 }
