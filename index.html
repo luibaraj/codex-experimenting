@@ -3,38 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Template Product</title>
+    <title>Square Clicker</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="hero">
-        <h1>TEMPLATE PRODUCT</h1>
-        <p>Your solution for modern productivity.</p>
-        <button id="learnMore">Learn More</button>
-    </header>
-
-    <section class="features">
-        <h2>Features</h2>
-        <div class="feature-list">
-            <div class="feature">
-                <h3>Easy Setup</h3>
-                <p>Get started in minutes with minimal configuration.</p>
-            </div>
-            <div class="feature">
-                <h3>Customizable</h3>
-                <p>Tailor the product to your workflow.</p>
-            </div>
-            <div class="feature">
-                <h3>Reliable Support</h3>
-                <p>We're here to help whenever you need it.</p>
-            </div>
+    <div class="game-container">
+        <h1>Square Clicker</h1>
+        <div class="info">
+            <span>Score: <span id="score">0</span></span>
+            <span>Time: <span id="time">30</span>s</span>
         </div>
-    </section>
-
-    <footer>
-        <p>&copy; 2023 TEMPLATE PRODUCT</p>
-    </footer>
-
+        <button id="startBtn">Start Game</button>
+        <div id="gameArea" class="game-area">
+            <div id="target" class="target hidden"></div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
