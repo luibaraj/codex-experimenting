@@ -1,3 +1,4 @@
+
 function randomPosition(max) {
     return Math.floor(Math.random() * max);
 }
@@ -7,6 +8,7 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 if (typeof document !== 'undefined') {
+
 document.addEventListener('DOMContentLoaded', () => {
     const scoreEl = document.getElementById('score');
     const timeEl = document.getElementById('time');
@@ -22,6 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let spawnInterval;
     const objects = [];
     const playerSpeed = 7;
+
+
+    function randomPosition(max) {
+        return Math.floor(Math.random() * max);
+    }
+
 
     function isColliding(a, b) {
         const aRect = a.getBoundingClientRect();
